@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MERIDIAN — The Story</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1008;
+      font-family: 'Inter', sans-serif;
+      color: #F5F0E8;
+      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 25;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .nav-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: #D94F30;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      font-family: 'Bebas Neue', sans-serif;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      color: #F5F0E8;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    body.menu-open .nav-links {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px;
+      background: none;
+      border: none;
+      position: relative;
+      z-index: 25;
+    }
+
+    .nav-menu span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #F5F0E8;
+      border-radius: 1px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-menu.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .nav-menu.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-menu.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Fullscreen Menu Overlay */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #C4785A;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-overlay-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+    }
+
+    .menu-overlay-links a {
+      font-size: 3.5rem;
+      color: #F5F0E8;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      line-height: 1.1;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease, color 0.3s ease;
+    }
+
+    .menu-overlay.active .menu-overlay-links a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-overlay.active .menu-overlay-links a:nth-child(1) { transition-delay: 0.1s; }
+    .menu-overlay.active .menu-overlay-links a:nth-child(2) { transition-delay: 0.15s; }
+    .menu-overlay.active .menu-overlay-links a:nth-child(3) { transition-delay: 0.2s; }
+    .menu-overlay.active .menu-overlay-links a:nth-child(4) { transition-delay: 0.25s; }
+
+    .menu-overlay-links a:hover {
+      color: #D94F30;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: -20%;
+      left: 0;
+      width: 100%;
+      height: 140%;
+      background:
+        linear-gradient(to bottom, transparent 0%, transparent 50%, #1a1008 100%),
+        url('https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=1600&q=80') center/cover no-repeat,
+        linear-gradient(180deg, #d4956e 0%, #C4785A 20%, #a3603e 55%, #8b4d30 70%, #1a1008 100%);
+      will-change: transform;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(26, 16, 8, 0.3);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      text-align: center;
+      line-height: 1;
+      text-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-rule {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-rule .line {
+      width: 60px;
+      height: 1px;
+      background: rgba(245, 240, 232, 0.3);
+    }
+
+    .hero-rule .diamond {
+      width: 6px;
+      height: 6px;
+      background: #D94F30;
+      transform: rotate(45deg);
+    }
+
+    /* Content Sections */
+    .content-section {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 80px;
+      align-items: center;
+      width: 84%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 200px 0;
+      position: relative;
+    }
+
+    .content-section.reverse {
+      grid-template-columns: 1.1fr 1fr;
+    }
+
+    .content-section.reverse .section-text {
+      order: 2;
+    }
+
+    .content-section.reverse .section-image {
+      order: 1;
+    }
+
+    /* Section dividers */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(245, 240, 232, 0.06);
+    }
+
+    /* Section number */
+    .section-text {
+      position: relative;
+    }
+
+    .section-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14rem;
+      line-height: 1;
+      color: rgba(245, 240, 232, 0.04);
+      position: absolute;
+      top: -60px;
+      left: -10px;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .content-section.reverse .section-number {
+      left: auto;
+      right: -10px;
+    }
+
+    .section-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 6.5rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 0.95;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .section-text p {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 1.05rem;
+      line-height: 2;
+      color: rgba(245, 240, 232, 0.65);
+      max-width: 500px;
+      position: relative;
+    }
+
+    /* Scroll reveal — text slides from the side */
+    .section-text {
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .content-section.reverse .section-text {
+      transform: translateX(50px);
+    }
+
+    .section-text.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Body text staggers after headline */
+    .section-text p {
+      opacity: 0;
+      transform: translateY(15px);
+      transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+    }
+
+    .section-text.visible p {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Restore the color after transform override */
+    .section-text.visible p {
+      color: rgba(245, 240, 232, 0.65);
+    }
+
+    /* Image reveal */
+    .section-image {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.9s ease 0.15s, transform 0.9s ease 0.15s;
+    }
+
+    .section-image.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .section-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: linear-gradient(160deg, #d4956e 0%, #C4785A 30%, #a3603e 60%, #8b4d30 100%);
+    }
+
+    /* Footer */
+    .footer-line {
+      width: 100%;
+      height: 1px;
+      background: rgba(245, 240, 232, 0.08);
+    }
+
+    footer {
+      padding: 80px 24px 60px;
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: #D94F30;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .footer-copy {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: rgba(245, 240, 232, 0.3);
+      letter-spacing: 0.1em;
+      margin-bottom: 32px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+      font-family: 'Bebas Neue', sans-serif;
+    }
+
+    .footer-links a {
+      font-size: 0.85rem;
+      color: #F5F0E8;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      opacity: 0.35;
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      opacity: 1;
+    }
+
+    .back-to-top {
+      display: inline-block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 300;
+      color: rgba(245, 240, 232, 0.25);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      transition: color 0.3s ease;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .back-to-top:hover {
+      color: rgba(245, 240, 232, 0.6);
+    }
+
+    /* Progress Bar */
+    #progressBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: #D94F30;
+      z-index: 50;
+      will-change: width;
+      pointer-events: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 4.5rem;
+        letter-spacing: 0.15em;
+      }
+
+      .content-section {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        width: 90%;
+        padding: 100px 0;
+      }
+
+      .content-section.reverse {
+        grid-template-columns: 1fr;
+      }
+
+      .content-section.reverse .section-text {
+        order: 1;
+      }
+
+      .content-section.reverse .section-image {
+        order: 2;
+      }
+
+      .section-number {
+        font-size: 8rem;
+        top: -35px;
+        left: 0;
+      }
+
+      .content-section.reverse .section-number {
+        left: 0;
+        right: auto;
+      }
+
+      .section-text h2 {
+        font-size: 3.5rem;
+      }
+
+      .section-text,
+      .content-section.reverse .section-text {
+        transform: translateY(30px);
+      }
+
+      .section-text.visible {
+        transform: translateY(0);
+      }
+
+      .section-text p {
+        font-size: 0.95rem;
+        max-width: 100%;
+      }
+
+      .section-image {
+        aspect-ratio: 16 / 10;
+      }
+
+      .menu-overlay-links a {
+        font-size: 2.5rem;
+      }
+
+      .footer-links {
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Progress Bar -->
+  <div id="progressBar"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-brand">MERIDIAN</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="story.html">Story</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="nav-menu" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Fullscreen Menu Overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-overlay-links">
+      <a href="story.html" class="menu-link">Story</a>
+      <a href="#gallery" class="menu-link">Gallery</a>
+      <a href="#contact" class="menu-link">Contact</a>
+      <a href="#instagram" class="menu-link">Instagram</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="top">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">The Story</h1>
+      <div class="hero-rule">
+        <div class="line"></div>
+        <div class="diamond"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1 — Origin -->
+  <div class="section-divider"></div>
+  <section class="content-section">
+    <div class="section-text" data-reveal>
+      <div class="section-number">01</div>
+      <h2>Born in<br>the dust</h2>
+      <p>MERIDIAN wasn't born in a boardroom. It was born on a cracked highway somewhere between nowhere and the horizon, where the desert swallows everything but ambition. We started with one car, one road, and an obsession with speed that no amount of dust could bury.</p>
+    </div>
+    <div class="section-image" data-reveal>
+      <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=80" alt="Vintage muscle car in a desert landscape">
+    </div>
+  </section>
+
+  <!-- Section 2 — Philosophy -->
+  <div class="section-divider"></div>
+  <section class="content-section reverse">
+    <div class="section-text" data-reveal>
+      <div class="section-number">02</div>
+      <h2>Built<br>different</h2>
+      <p>Every machine we touch is a conversation between engineering and instinct. We don't separate function from beauty — we refuse to believe they were ever apart. Every bolt tightened, every line drawn, serves both the eye and the engine.</p>
+    </div>
+    <div class="section-image" data-reveal>
+      <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80" alt="Close-up of a car interior and steering wheel">
+    </div>
+  </section>
+
+  <!-- Section 3 — The Road Ahead -->
+  <div class="section-divider"></div>
+  <section class="content-section">
+    <div class="section-text" data-reveal>
+      <div class="section-number">03</div>
+      <h2>Drive<br>beyond</h2>
+      <p>The road doesn't end — it just changes shape. MERIDIAN is building for the next hundred years of open sky and open throttle. We don't chase trends. We chase the vanishing point, and we never look back.</p>
+    </div>
+    <div class="section-image" data-reveal>
+      <img src="https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&q=80" alt="Aerial shot of a desert road stretching into the distance">
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer-line"></div>
+  <footer>
+    <div class="footer-brand">MERIDIAN</div>
+    <div class="footer-copy">&copy; 2026 MERIDIAN</div>
+    <div class="footer-links">
+      <a href="#instagram">Instagram</a>
+      <a href="story.html">Story</a>
+      <a href="index.html">Home</a>
+    </div>
+    <button class="back-to-top" id="backToTop">Back to top</button>
+  </footer>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const heroBg = document.getElementById('heroBg');
+    const progressBar = document.getElementById('progressBar');
+    const backToTop = document.getElementById('backToTop');
+
+    let menuOpen = false;
+    let ticking = false;
+
+    // Hamburger menu toggle
+    menuToggle.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      menuToggle.classList.toggle('active', menuOpen);
+      menuOverlay.classList.toggle('active', menuOpen);
+      document.body.classList.toggle('menu-open', menuOpen);
+    });
+
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', () => {
+        menuOpen = false;
+        menuToggle.classList.remove('active');
+        menuOverlay.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      });
+    });
+
+    // Back to top
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Scroll handler
+    const revealElements = document.querySelectorAll('[data-reveal]');
+
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const scrollHeight = document.body.scrollHeight - window.innerHeight;
+          const scrollFraction = scrollHeight > 0 ? scrollY / scrollHeight : 0;
+
+          // Progress bar
+          progressBar.style.width = (scrollFraction * 100) + '%';
+
+          // Hero parallax
+          if (scrollY < window.innerHeight * 1.5) {
+            heroBg.style.transform = 'translateY(' + (scrollY * 0.3) + 'px)';
+          }
+
+          // Reveal on scroll
+          revealElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.82) {
+              el.classList.add('visible');
+            }
+          });
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+  </script>
+
+</body>
+</html>

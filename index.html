@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MERIDIAN — Drive Beyond</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 500vh;
+      background: #C4785A;
+      font-family: 'Bebas Neue', sans-serif;
+      color: #F5F0E8;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* Progress Bar */
+    #progressBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: #D94F30;
+      z-index: 50;
+      will-change: width;
+      pointer-events: none;
+    }
+
+    /* Loading Screen */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #1a1008;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+    }
+
+    #loader .brand {
+      font-size: 4rem;
+      color: #D94F30;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    #loader .loader-bar-track {
+      width: 200px;
+      height: 2px;
+      background: rgba(245, 240, 232, 0.15);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    #loader .loader-bar {
+      width: 0%;
+      height: 100%;
+      background: #D94F30;
+      border-radius: 1px;
+      transition: width 0.3s ease;
+    }
+
+    #loader .loader-text {
+      font-size: 0.9rem;
+      letter-spacing: 0.4em;
+      color: rgba(245, 240, 232, 0.4);
+      text-transform: uppercase;
+    }
+
+    /* Video */
+    #scrollVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    /* Video overlay for text readability */
+    .video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.25) 0%,
+          rgba(0, 0, 0, 0.05) 40%,
+          rgba(0, 0, 0, 0.05) 60%,
+          rgba(0, 0, 0, 0.35) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 25;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .nav-brand {
+      font-size: 1.3rem;
+      color: #D94F30;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      text-decoration: none;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-links a {
+      font-size: 0.8rem;
+      color: #F5F0E8;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      opacity: 0.5;
+      transition: opacity 0.3s ease;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    body.menu-open .nav-links {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 5px;
+      background: none;
+      border: none;
+      position: relative;
+      z-index: 25;
+    }
+
+    .nav-menu span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #F5F0E8;
+      border-radius: 1px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-menu.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .nav-menu.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-menu.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Fullscreen Menu Overlay */
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #C4785A;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .menu-overlay-links {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .menu-overlay-links a {
+      font-size: 3.5rem;
+      color: #F5F0E8;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      line-height: 1.1;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s ease, transform 0.4s ease, color 0.3s ease;
+    }
+
+    .menu-overlay.active .menu-overlay-links a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-overlay.active .menu-overlay-links a:nth-child(1) {
+      transition-delay: 0.1s;
+    }
+
+    .menu-overlay.active .menu-overlay-links a:nth-child(2) {
+      transition-delay: 0.15s;
+    }
+
+    .menu-overlay.active .menu-overlay-links a:nth-child(3) {
+      transition-delay: 0.2s;
+    }
+
+    .menu-overlay.active .menu-overlay-links a:nth-child(4) {
+      transition-delay: 0.25s;
+    }
+
+    .menu-overlay-links a:hover {
+      color: #D94F30;
+    }
+
+    /* Text Blocks */
+    .text-block {
+      position: fixed;
+      z-index: 1;
+      opacity: 0;
+      transition: none;
+      will-change: transform, opacity;
+      padding: 0 8%;
+      max-width: 700px;
+      pointer-events: none;
+    }
+
+    .text-block h2 {
+      font-size: 3.2rem;
+      font-weight: 400;
+      line-height: 1.05;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 1px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .text-block.left {
+      left: 0;
+      bottom: 18%;
+      text-align: left;
+    }
+
+    .text-block.right {
+      right: 0;
+      bottom: 18%;
+      text-align: right;
+    }
+
+    .text-block.center {
+      left: 50%;
+      bottom: 20%;
+      transform: translateX(-50%);
+      text-align: center;
+      max-width: 900px;
+    }
+
+    .text-block.center h2 {
+      font-size: 4.5rem;
+    }
+
+    .text-block.center .brand-highlight {
+      color: #D94F30;
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      opacity: 0;
+      will-change: opacity;
+      transition: opacity 0.6s ease;
+    }
+
+    .scroll-hint span {
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 232, 0.5);
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .scroll-hint .arrow {
+      width: 12px;
+      height: 12px;
+      border-right: 1px solid rgba(245, 240, 232, 0.4);
+      border-bottom: 1px solid rgba(245, 240, 232, 0.4);
+      transform: rotate(45deg);
+      animation: bounceArrow 2s ease-in-out infinite;
+    }
+
+    .scroll-hint.hidden {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+
+    @keyframes bounceArrow {
+
+      0%,
+      100% {
+        transform: rotate(45deg) translateY(0);
+        opacity: 0.4;
+      }
+
+      50% {
+        transform: rotate(45deg) translateY(6px);
+        opacity: 1;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .text-block {
+        padding: 0 6%;
+        max-width: 100%;
+      }
+
+      .text-block h2 {
+        font-size: 2rem;
+      }
+
+      .text-block.center h2 {
+        font-size: 2.8rem;
+      }
+
+      .text-block.left,
+      .text-block.right {
+        bottom: 14%;
+      }
+
+      .text-block.center {
+        bottom: 16%;
+      }
+
+      .text-block.right {
+        left: 0;
+        right: 0;
+        padding: 0 6%;
+      }
+
+      #loader .brand {
+        font-size: 2.5rem;
+      }
+
+      .menu-overlay-links a {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Progress Bar -->
+  <div id="progressBar"></div>
+
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="brand">MERIDIAN</div>
+    <div class="loader-bar-track">
+      <div class="loader-bar" id="loaderBar"></div>
+    </div>
+    <div class="loader-text">Loading</div>
+  </div>
+
+  <!-- Video -->
+  <video muted playsinline preload="auto" id="scrollVideo">
+    <source src="Car Video.mp4" type="video/mp4">
+  </video>
+
+  <!-- Video Overlay -->
+  <div class="video-overlay"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="nav-brand">MERIDIAN</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="story.html">Story</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <button class="nav-menu" id="menuToggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Fullscreen Menu Overlay -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-overlay-links">
+      <a href="story.html" class="menu-link">Story</a>
+      <a href="#gallery" class="menu-link">Gallery</a>
+      <a href="#contact" class="menu-link">Contact</a>
+      <a href="#instagram" class="menu-link">Instagram</a>
+    </div>
+  </div>
+
+  <!-- Text Blocks -->
+  <div class="text-block left" data-start="0.08" data-end="0.24">
+    <h2>Born where the asphalt ends and the dust begins</h2>
+  </div>
+
+  <div class="text-block right" data-start="0.24" data-end="0.40">
+    <h2>Built for the ones who never stopped chasing the horizon</h2>
+  </div>
+
+  <div class="text-block left" data-start="0.40" data-end="0.56">
+    <h2>No maps. No limits. Just the road ahead.</h2>
+  </div>
+
+  <div class="text-block right" data-start="0.56" data-end="0.72">
+    <h2>Where others see nothing, we see everything.</h2>
+  </div>
+
+  <div class="text-block center" data-start="0.76" data-end="0.95">
+    <h2><span class="brand-highlight">MERIDIAN</span> — Drive beyond.</h2>
+  </div>
+
+  <!-- Scroll Hint -->
+  <div class="scroll-hint" id="scrollHint">
+    <span>Scroll to explore</span>
+    <div class="arrow"></div>
+  </div>
+
+  <script>
+    const video = document.getElementById('scrollVideo');
+    const loader = document.getElementById('loader');
+    const loaderBar = document.getElementById('loaderBar');
+    const scrollHint = document.getElementById('scrollHint');
+    const textBlocks = document.querySelectorAll('.text-block');
+    const progressBar = document.getElementById('progressBar');
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    let isLoaded = false;
+    let ticking = false;
+    let menuOpen = false;
+
+    // Hamburger menu toggle
+    menuToggle.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      menuToggle.classList.toggle('active', menuOpen);
+      menuOverlay.classList.toggle('active', menuOpen);
+      document.body.classList.toggle('menu-open', menuOpen);
+    });
+
+    // Close menu when clicking a link
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', () => {
+        menuOpen = false;
+        menuToggle.classList.remove('active');
+        menuOverlay.classList.remove('active');
+        document.body.classList.remove('menu-open');
+      });
+    });
+
+    // Simulate load progress
+    let fakeProgress = 0;
+    const progressInterval = setInterval(() => {
+      if (fakeProgress < 90) {
+        fakeProgress += Math.random() * 15;
+        fakeProgress = Math.min(fakeProgress, 90);
+        loaderBar.style.width = fakeProgress + '%';
+      }
+    }, 200);
+
+    // Wait for video ready
+    const hideLoader = () => {
+      if (isLoaded) return;
+      isLoaded = true;
+
+      clearInterval(progressInterval);
+      loaderBar.style.width = '100%';
+
+      setTimeout(() => {
+        loader.style.transition = 'opacity 0.8s ease';
+        loader.style.opacity = '0';
+
+        setTimeout(() => {
+          loader.style.display = 'none';
+
+          // Show scroll hint
+          scrollHint.style.opacity = '1';
+        }, 800);
+      }, 400);
+    };
+
+    if (video.readyState >= 3) {
+      hideLoader();
+    } else {
+      video.addEventListener('canplaythrough', hideLoader);
+      video.addEventListener('loadeddata', hideLoader);
+
+      // Failsafe: hide loader after 5 seconds anyway to prevent infinite freezing
+      setTimeout(hideLoader, 5000);
+    }
+
+    // Scroll handler with requestAnimationFrame
+    const initScroll = () => {
+      const onScroll = () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            const scrollHeight = document.body.scrollHeight - window.innerHeight;
+            if (scrollHeight <= 0) {
+              ticking = false;
+              return;
+            }
+
+            const scrollPosition = window.scrollY;
+            const scrollFraction = scrollPosition / scrollHeight;
+
+            // Map scroll to video time
+            if (video.duration) {
+              video.currentTime = scrollFraction * video.duration;
+            }
+
+            // Update progress bar
+            progressBar.style.width = (scrollFraction * 100) + '%';
+
+            // Fade out and hide scroll hint at 5%
+            if (scrollFraction > 0.05) {
+              if (!scrollHint.classList.contains('hidden')) {
+                scrollHint.classList.add('hidden');
+              }
+            } else if (isLoaded) {
+              scrollHint.classList.remove('hidden');
+              scrollHint.style.opacity = '1';
+            }
+
+            // Animate text blocks
+            textBlocks.forEach(block => {
+              const start = parseFloat(block.dataset.start);
+              const end = parseFloat(block.dataset.end);
+
+              if (scrollFraction >= start && scrollFraction <= end) {
+                const progress = (scrollFraction - start) / (end - start);
+                const opacity = progress < 0.3 ? progress / 0.3 : progress > 0.7 ? (1 - progress) / 0.3 : 1;
+                const translateY = (1 - Math.min(progress / 0.3, 1)) * 30;
+
+                block.style.opacity = Math.max(0, Math.min(1, opacity));
+
+                if (block.classList.contains('center')) {
+                  block.style.transform = `translateX(-50%) translateY(${translateY}px)`;
+                } else {
+                  block.style.transform = `translateY(${translateY}px)`;
+                }
+              } else {
+                block.style.opacity = 0;
+              }
+            });
+
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+
+      window.addEventListener('scroll', onScroll);
+      // Trigger once on init
+      onScroll();
+    };
+
+    if (video.readyState >= 1) {
+      initScroll();
+    } else {
+      video.addEventListener('loadedmetadata', initScroll);
+      // Fallback
+      setTimeout(initScroll, 2000);
+    }
+  </script>
+
+</body>
+
+</html>
