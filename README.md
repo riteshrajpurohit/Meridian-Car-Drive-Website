@@ -1,7 +1,5 @@
 # MERIDIAN — Drive Beyond
 
-![MERIDIAN](https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1600&q=80) 
-
 MERIDIAN is a conceptual, high-end automotive brand portfolio website. The project demonstrates a premium, modern web experience using HTML, CSS, JavaScript, and immersive multimedia elements.
 
 ## ✨ Features
@@ -51,4 +49,4 @@ Then navigate to `http://localhost:3000` (or the port specified by your server) 
 
 ## 📝 License
 
-This project is created for conceptual and portfolio purposes. Image assets are sourced from Unsplash.
+This project is created for conceptual and portfolio purposes.
