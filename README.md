@@ -30,8 +30,7 @@ To view the website locally, you do not need any build tools or dependencies.
 If you have Node.js installed, you can use `npx`:
 ```bash
 npx serve .
-```
-
+``
 Alternatively, if you have Python installed:
 ```bash
 # Python 3
