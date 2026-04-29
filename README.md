@@ -2,7 +2,7 @@
 
 MERIDIAN is a conceptual, high-end automotive brand portfolio website. The project demonstrates a premium, modern web experience using HTML, CSS, JavaScript, and immersive multimedia elements.
 
-## ✨ Features
+## ✨ Features -
 
 - **Immersive Video Background:** Full-screen video backgrounds with scroll-linked playback for a "Scrollytelling" experience.
 - **Custom Loading Screen:** A sleek loading sequence ensuring all assets are ready before the experience begins.
