@@ -48,4 +48,4 @@ Then navigate to `http://localhost:3000` (or the port specified by your server) 
 
 ## 📝 License
 
-This project is created for conceptual and portfolio purposes.
+This project is created for conceptual and portfolio purposes
